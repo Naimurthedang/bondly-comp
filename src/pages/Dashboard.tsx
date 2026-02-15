@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,43 +33,51 @@ const iframeModules = [
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [babies, setBabies] = useState<BabyProfile[]>([]);
-  const [profile, setProfile] = useState<{ full_name: string; onboarding_completed: boolean } | null>(null);
+  const queryClient = useQueryClient();
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
-  useEffect(() => {
-    if (!user) return;
-    const fetchData = async () => {
-      const [profileRes, babiesRes] = await Promise.all([
-        supabase.from("profiles").select("full_name, onboarding_completed").eq("user_id", user.id).single(),
-        supabase.from("babies").select("id, name, birth_date, gender").eq("user_id", user.id),
-      ]);
-      if (profileRes.data) setProfile(profileRes.data);
-      if (babiesRes.data) setBabies(babiesRes.data);
-      if (profileRes.data && !profileRes.data.onboarding_completed) {
-        setShowOnboarding(true);
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [user]);
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("full_name, onboarding_completed")
+        .eq("user_id", user!.id)
+        .single();
+      if (error) throw error;
+      if (data && !data.onboarding_completed) setShowOnboarding(true);
+      return data;
+    },
+    enabled: !!user,
+  });
 
-  const handleLogout = async () => {
+  const { data: babies = [], isLoading: babiesLoading } = useQuery({
+    queryKey: ["babies", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("babies")
+        .select("id, name, birth_date, gender")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return data as BabyProfile[];
+    },
+    enabled: !!user,
+  });
+
+  const handleLogout = useCallback(async () => {
     await signOut();
+    queryClient.clear();
     navigate("/");
-  };
+  }, [signOut, navigate, queryClient]);
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = useCallback(() => {
     setShowOnboarding(false);
-    if (user) {
-      supabase.from("babies").select("id, name, birth_date, gender").eq("user_id", user.id)
-        .then(({ data }) => { if (data) setBabies(data); });
-      supabase.from("profiles").select("full_name, onboarding_completed").eq("user_id", user.id).single()
-        .then(({ data }) => { if (data) setProfile(data); });
-    }
-  };
+    queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+    queryClient.invalidateQueries({ queryKey: ["babies", user?.id] });
+  }, [queryClient, user?.id]);
+
+  const loading = profileLoading || babiesLoading;
 
   if (loading) {
     return (

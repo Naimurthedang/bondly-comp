@@ -29,7 +29,7 @@ export const Hero = () => (
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="font-display text-5xl md:text-7xl font-extrabold text-foreground leading-tight mb-6"
+          className="font-display text-5xl md:text-7xl font-extrabold text-primary leading-tight mb-6"
         >
           Build magical bonds
           <br />
