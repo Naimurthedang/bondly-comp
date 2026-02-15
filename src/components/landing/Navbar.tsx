@@ -18,7 +18,7 @@ export const Navbar = () => {
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="flex items-center gap-2">
           <span className="text-2xl">🍼</span>
-          <span className="font-display text-xl font-bold text-foreground">Bondly</span>
+          <span className="font-display text-xl font-bold text-primary">Bondly</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
