@@ -9,6 +9,7 @@ import {
   Music, BookOpen, Puzzle, Heart, Plus, LogOut, Baby, User, Sparkles, Box,
   MessageCircle, Target, Bath, Calendar, ListChecks, ShoppingCart,
   UtensilsCrossed, BookOpen as Journal, Cake, Home, ChevronLeft, Menu,
+  Users, CalendarCheck, Mail,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
@@ -37,6 +38,9 @@ interface BabyProfile {
 const navItems = [
   { id: "overview", label: "Home", icon: Home },
   { id: "chat", label: "AI Chat", icon: MessageCircle },
+  { id: "marketplace", label: "Marketplace", icon: Users, route: "/marketplace" },
+  { id: "bookings", label: "Bookings", icon: CalendarCheck, route: "/bookings" },
+  { id: "messages", label: "Messages", icon: Mail, route: "/messages" },
   { id: "milestones", label: "Milestones", icon: Target },
   { id: "potty", label: "Potty Tracker", icon: Bath },
   { id: "calendar", label: "Calendar", icon: Calendar },
@@ -180,7 +184,7 @@ const Dashboard = () => {
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => (item as any).route ? navigate((item as any).route) : setActiveTab(item.id)}
                 className={cn(
                   "flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                   activeTab === item.id

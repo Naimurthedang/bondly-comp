@@ -14,6 +14,12 @@ const Signup = lazy(() => import("./pages/Signup"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const Bookings = lazy(() => import("./pages/Bookings"));
+const Messages = lazy(() => import("./pages/Messages"));
+const Invest = lazy(() => import("./pages/Invest"));
+const About = lazy(() => import("./pages/About"));
+const CaregiverOnboarding = lazy(() => import("./pages/CaregiverOnboarding"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +53,12 @@ const App = () => (
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+                <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                <Route path="/caregiver/onboarding" element={<ProtectedRoute><CaregiverOnboarding /></ProtectedRoute>} />
+                <Route path="/invest" element={<Invest />} />
+                <Route path="/about" element={<About />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
