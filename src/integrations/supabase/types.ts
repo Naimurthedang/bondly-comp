@@ -47,6 +47,147 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          address_revealed: boolean
+          caregiver_id: string
+          created_at: string
+          end_time: string
+          hourly_rate: number
+          id: string
+          notes: string | null
+          parent_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          address_revealed?: boolean
+          caregiver_id: string
+          created_at?: string
+          end_time: string
+          hourly_rate: number
+          id?: string
+          notes?: string | null
+          parent_id: string
+          start_time: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address_revealed?: boolean
+          caregiver_id?: string
+          created_at?: string
+          end_time?: string
+          hourly_rate?: number
+          id?: string
+          notes?: string | null
+          parent_id?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      caregiver_profiles: {
+        Row: {
+          availability: Json | null
+          avatar_url: string | null
+          bio: string | null
+          certifications: Json | null
+          created_at: string
+          education: string | null
+          full_name: string
+          hourly_rate: number
+          id: string
+          languages: Json | null
+          location_radius: number | null
+          profile_completeness: number
+          specialties: Json | null
+          updated_at: string
+          user_id: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
+          years_experience: number | null
+        }
+        Insert: {
+          availability?: Json | null
+          avatar_url?: string | null
+          bio?: string | null
+          certifications?: Json | null
+          created_at?: string
+          education?: string | null
+          full_name: string
+          hourly_rate?: number
+          id?: string
+          languages?: Json | null
+          location_radius?: number | null
+          profile_completeness?: number
+          specialties?: Json | null
+          updated_at?: string
+          user_id: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+          years_experience?: number | null
+        }
+        Update: {
+          availability?: Json | null
+          avatar_url?: string | null
+          bio?: string | null
+          certifications?: Json | null
+          created_at?: string
+          education?: string | null
+          full_name?: string
+          hourly_rate?: number
+          id?: string
+          languages?: Json | null
+          location_radius?: number | null
+          profile_completeness?: number
+          specialties?: Json | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      investor_inquiries: {
+        Row: {
+          created_at: string
+          email: string
+          firm: string | null
+          id: string
+          investment_range: string | null
+          investor_name: string
+          message: string | null
+          nda_requested: boolean
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          firm?: string | null
+          id?: string
+          investment_range?: string | null
+          investor_name: string
+          message?: string | null
+          nda_requested?: boolean
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          firm?: string | null
+          id?: string
+          investment_range?: string | null
+          investor_name?: string
+          message?: string | null
+          nda_requested?: boolean
+          phone?: string | null
+        }
+        Relationships: []
+      }
       learning_sessions: {
         Row: {
           baby_id: string
@@ -75,6 +216,44 @@ export type Database = {
             columns: ["baby_id"]
             isOneToOne: false
             referencedRelation: "babies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          booking_id: string
+          content: string
+          created_at: string
+          id: string
+          message_type: Database["public"]["Enums"]["message_type"]
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          booking_id: string
+          content: string
+          created_at?: string
+          id?: string
+          message_type?: Database["public"]["Enums"]["message_type"]
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          booking_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          message_type?: Database["public"]["Enums"]["message_type"]
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
         ]
@@ -140,6 +319,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          booking_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          is_verified_hire: boolean
+          kindness_rating: number | null
+          overall_rating: number
+          punctuality_rating: number | null
+          reviewee_id: string
+          reviewer_id: string
+          safety_rating: number | null
+        }
+        Insert: {
+          booking_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_verified_hire?: boolean
+          kindness_rating?: number | null
+          overall_rating: number
+          punctuality_rating?: number | null
+          reviewee_id: string
+          reviewer_id: string
+          safety_rating?: number | null
+        }
+        Update: {
+          booking_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_verified_hire?: boolean
+          kindness_rating?: number | null
+          overall_rating?: number
+          punctuality_rating?: number | null
+          reviewee_id?: string
+          reviewer_id?: string
+          safety_rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       songs: {
         Row: {
@@ -246,6 +475,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      booking_status:
+        | "requested"
+        | "accepted"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+        | "disputed"
+      message_type: "text" | "image" | "system"
+      verification_status: "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -374,6 +612,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      booking_status: [
+        "requested",
+        "accepted",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "disputed",
+      ],
+      message_type: ["text", "image", "system"],
+      verification_status: ["pending", "verified", "rejected"],
     },
   },
 } as const
