@@ -1,94 +1,164 @@
 
 
-# 🍼 Bondly — AI Parenting Web App Foundation
+# Bondly Platform Expansion Plan
 
-A stunning, hackathon-ready SaaS foundation with working auth, scalable database, and a landing page that looks like a funded startup.
+## Phase 1: Fix Security Warnings (3 findings)
 
----
+### 1. Leaked Password Protection
+- Enable leaked password protection via the auth configuration tool
 
-## 1. Landing Page — Premium & Playful
+### 2. Stories table -- missing UPDATE policy
+- Add RLS policy: users can update stories belonging to their own babies (via baby_id ownership check)
 
-A single-page marketing site with Framer Motion scroll animations, pastel color palette (sky blue, lavender, soft yellow), glassmorphism cards, and rounded typography.
-
-**Sections:**
-- **Navbar** — Logo, Features, Pricing links, Login/Signup CTA buttons (sticky, glassmorphism blur)
-- **Hero** — Bold headline, subtext, dual CTA buttons, animated gradient background with floating illustration placeholder
-- **Features Grid** — 6 glassmorphism cards: AI Bedtime Songs, AI Storybooks, Learning Puzzles, Parenting Guide, Rhymes Videos, Growth Tracking (with icons and hover effects)
-- **Demo Showcase** — Mock previews of a storybook page, audio player UI, and puzzle game UI
-- **Testimonials** — Parent avatars with review cards in a carousel/grid
-- **Pricing** — Free / Pro / Family tier cards with feature comparison
-- **CTA Banner** — Final call-to-action with gradient background
-- **Footer** — Navigation links, social icons, copyright
-
-All sections animate in on scroll using Framer Motion (fade-up, stagger, scale).
+### 3. Parenting Guides -- missing UPDATE and DELETE policies
+- Add UPDATE and DELETE RLS policies using the same baby_id ownership pattern
 
 ---
 
-## 2. Authentication System (Supabase Auth)
+## Phase 2: Database Schema for Marketplace
 
-Full email/password authentication with Google OAuth.
+Create new tables to support the caregiver marketplace, messaging, investor forms, and ratings:
 
-**Pages:**
-- `/login` — Email + password form, Google OAuth button, "Forgot password" link
-- `/signup` — Registration form with validation, Google OAuth button
-- `/dashboard` — Protected route (redirects to login if not authenticated)
+### New Tables
 
-**Features:**
-- Form validation with error messages
-- Loading states on submit
-- Forgot password flow (email reset)
-- Email verification
-- Auth state management with protected route wrapper
-- User profiles table auto-created on signup via database trigger
+**caregiver_profiles** -- stores caregiver-specific data
+- user_id, full_name, bio, hourly_rate, years_experience, education, certifications (JSONB), specialties (JSONB), languages (JSONB), location_radius, availability (JSONB), verification_status (enum: pending/verified/rejected), profile_completeness (integer), created_at, updated_at
 
----
+**bookings** -- hiring pipeline
+- id, parent_id, caregiver_id, status (enum: requested/accepted/in_progress/completed/cancelled/disputed), start_time, end_time, hourly_rate, total_amount, notes, address_revealed (boolean), created_at, updated_at
 
-## 3. Database Schema (Supabase + Lovable Cloud)
+**reviews** -- ratings and feedback
+- id, booking_id, reviewer_id, reviewee_id, overall_rating (1-5), safety_rating, kindness_rating, punctuality_rating, comment, is_verified_hire, created_at
 
-Scalable schema designed for future AI feature integration:
+**messages** -- real-time chat (using Supabase Realtime)
+- id, booking_id, sender_id, content, message_type (text/image/system), read_at, created_at
 
-- **profiles** — id, email, full_name, avatar_url, created_at (auto-created on signup)
-- **babies** — id, user_id (FK), name, birth_date, gender, preferences (JSONB)
-- **songs** — id, baby_id (FK), title, audio_url, created_at
-- **stories** — id, baby_id (FK), title, pdf_url, cover_image, created_at
-- **learning_sessions** — id, baby_id (FK), topic, score, created_at
-- **parenting_guides** — id, baby_id (FK), guide_text, created_at
-- **user_roles** — id, user_id (FK), role (enum: admin, user)
+**investor_inquiries** -- investment form submissions
+- id, investor_name, firm, investment_range, email, phone, message, nda_requested, created_at
 
-All tables with Row-Level Security so users can only access their own data.
+### RLS Policies
+- All tables secured with ownership-based RLS
+- Caregivers can only edit their own profiles
+- Parents and caregivers can only see messages/bookings they are part of
+- Reviews only writable by booking participants after completion
+- Investor inquiries: insert-only for public, select for admins
+
+### Realtime
+- Enable Supabase Realtime on the `messages` table for live chat
 
 ---
 
-## 4. Dashboard (Basic)
+## Phase 3: New Pages and Components
 
-After login, users see a clean dashboard with:
+### New Routes
+- `/marketplace` -- Browse and search caregivers
+- `/caregiver/:id` -- Caregiver profile detail
+- `/bookings` -- Manage active and past bookings
+- `/messages` -- Chat interface for active bookings
+- `/invest` -- Investor landing page with form
+- `/about` -- Company about/trust page
+- `/caregiver/onboarding` -- Caregiver registration flow
 
-- Welcome header with user name
-- Baby profile card(s) or empty state with "Add Baby" button
-- Placeholder cards for future AI features (Songs, Stories, Learning, Guides)
-- Clean sidebar or top navigation
+### Marketplace Components
+- **CaregiverCard** -- search result card with photo, rate, rating, specialties
+- **CaregiverSearch** -- filters for specialty, price range, availability, rating
+- **CaregiverProfile** -- full detail view with reviews, availability calendar
+- **BookingFlow** -- multi-step: select time, confirm details, submit request
+- **BookingCard** -- status tracker for each booking stage
+- **ReviewForm** -- star ratings with skill-specific categories and comment
+
+### Messaging Components
+- **ChatWindow** -- real-time message list using Supabase Realtime subscriptions
+- **MessageBubble** -- styled message with timestamps and read receipts
+- **ConversationList** -- sidebar listing active booking conversations
+
+### Investor/About Pages
+- **InvestorHero** -- vision, market opportunity, growth metrics sections
+- **InvestmentForm** -- validated form with name, firm, range, NDA toggle, stored in database
+- **AboutPage** -- company story, safety standards, team profiles, testimonials
+
+### Dashboard Updates
+- Add "Marketplace", "Bookings", and "Messages" to the sidebar navigation
+- Add caregiver mode toggle for users who register as caregivers
 
 ---
 
-## 5. Onboarding Flow (Multi-step)
+## Phase 4: Edge Functions
 
-A 4-step onboarding wizard shown after first signup:
+### chatbot-proxy (already exists)
+- No changes needed
 
-1. **Add Baby Info** — Name, birth date, gender
-2. **Parenting Goals** — Select from options (bonding, learning, sleep, etc.)
-3. **Learning Style** — Visual, auditory, kinesthetic preferences
-4. **Sleep Schedule** — Bedtime, wake time, nap preferences
-
-Progress bar at the top. Responses stored in the babies table (preferences JSONB column). Skippable but encouraged.
+### send-notification
+- Edge function to send email notifications for booking status changes and new messages
+- Uses Lovable AI for generating notification content
 
 ---
 
-## 6. Design System
+## Important Scope Limitations
 
-Custom Tailwind theme with:
-- Pastel palette: sky blue, lavender, soft yellow, mint, blush pink
-- Glassmorphism utility classes (backdrop blur + translucent backgrounds)
-- Rounded, friendly typography (Inter or similar)
-- Consistent spacing, shadows, and border-radius
-- Dark mode support (optional, stretch goal)
+The following items from the request require infrastructure beyond what this platform supports and are excluded from this plan:
+
+- **Escrow/PCI-compliant payments**: Requires Stripe integration (can be added separately via the Stripe connector)
+- **WebSocket server / Socket.IO**: Using Supabase Realtime instead (Postgres-based, works well for this scale)
+- **Microservices / auto-scaling containers**: The platform runs on a single Vite + Supabase stack
+- **Geo-fencing, map integration, travel ETA**: Requires third-party mapping APIs (e.g., Google Maps) which can be added later
+- **End-to-end encryption**: Not feasible with Supabase Realtime; messages are encrypted at rest
+- **AI fraud detection, fake review detection**: Would require ML infrastructure; using manual admin moderation instead
+- **Video calls**: Requires WebRTC infrastructure (e.g., Twilio, Daily.co) -- can be added as a future integration
+- **Multi-currency, tax reports, invoice generation**: Requires Stripe or similar payment processor
+- **Redis caching, message queue buffering**: Using React Query client-side caching and Supabase Realtime instead
+- **DevOps pipeline, observability dashboards**: Outside platform scope
+
+---
+
+## Technical Details
+
+### File Structure (new files)
+```text
+src/pages/
+  Marketplace.tsx
+  CaregiverDetail.tsx
+  Bookings.tsx
+  Messages.tsx
+  Invest.tsx
+  About.tsx
+  CaregiverOnboarding.tsx
+
+src/components/marketplace/
+  CaregiverCard.tsx
+  CaregiverSearch.tsx
+  CaregiverProfile.tsx
+  BookingFlow.tsx
+  BookingCard.tsx
+  ReviewForm.tsx
+
+src/components/messaging/
+  ChatWindow.tsx
+  MessageBubble.tsx
+  ConversationList.tsx
+
+src/components/investor/
+  InvestorHero.tsx
+  InvestmentForm.tsx
+
+src/components/about/
+  AboutPage.tsx
+  TeamSection.tsx
+
+supabase/functions/send-notification/index.ts
+```
+
+### Database Enums
+- `verification_status`: pending, verified, rejected
+- `booking_status`: requested, accepted, in_progress, completed, cancelled, disputed
+- `message_type`: text, image, system
+
+### Implementation Order
+1. Database migration (all tables, enums, RLS, realtime)
+2. Security fixes (3 warn items)
+3. Marketplace pages (search, profiles, booking flow)
+4. Messaging system (Supabase Realtime)
+5. Investor and About pages
+6. Dashboard navigation updates
+7. Send-notification edge function
 
