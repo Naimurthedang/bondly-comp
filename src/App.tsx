@@ -20,6 +20,8 @@ const Messages = lazy(() => import("./pages/Messages"));
 const Invest = lazy(() => import("./pages/Invest"));
 const About = lazy(() => import("./pages/About"));
 const CaregiverOnboarding = lazy(() => import("./pages/CaregiverOnboarding"));
+const Growth = lazy(() => import("./pages/Growth"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,6 +61,8 @@ const App = () => (
                 <Route path="/caregiver/onboarding" element={<ProtectedRoute><CaregiverOnboarding /></ProtectedRoute>} />
                 <Route path="/invest" element={<Invest />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/growth" element={<ProtectedRoute><Growth /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
