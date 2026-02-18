@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import CaregiverCard from "@/components/marketplace/CaregiverCard";
 import CaregiverSearch, { type SearchFilters } from "@/components/marketplace/CaregiverSearch";
 import BookingFlow from "@/components/marketplace/BookingFlow";
+import AIRecommendations from "@/components/marketplace/AIRecommendations";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -64,6 +65,7 @@ const Marketplace = () => {
       </header>
       <main className="max-w-5xl mx-auto px-6 py-6 space-y-6">
         <CaregiverSearch onSearch={setFilters} />
+        {user && <AIRecommendations onSelectCaregiver={setSelectedCaregiver} />}
         {isLoading ? (
           <div className="flex justify-center py-12">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />

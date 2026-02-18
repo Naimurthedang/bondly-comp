@@ -152,6 +152,30 @@ export type Database = {
         }
         Relationships: []
       }
+      engagement_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       investor_inquiries: {
         Row: {
           created_at: string
@@ -220,6 +244,90 @@ export type Database = {
           },
         ]
       }
+      liveops_campaigns: {
+        Row: {
+          campaign_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_percent: number | null
+          ends_at: string
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          starts_at: string
+          target_audience: string | null
+          title: string
+        }
+        Insert: {
+          campaign_type: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_percent?: number | null
+          ends_at: string
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          starts_at: string
+          target_audience?: string | null
+          title: string
+        }
+        Update: {
+          campaign_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_percent?: number | null
+          ends_at?: string
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          starts_at?: string
+          target_audience?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      loyalty_rewards: {
+        Row: {
+          badges: Json | null
+          booking_streak: number | null
+          created_at: string
+          credits_balance: number | null
+          id: string
+          points: number
+          tier: string
+          total_bookings: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          badges?: Json | null
+          booking_streak?: number | null
+          created_at?: string
+          credits_balance?: number | null
+          id?: string
+          points?: number
+          tier?: string
+          total_bookings?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          badges?: Json | null
+          booking_streak?: number | null
+          created_at?: string
+          credits_balance?: number | null
+          id?: string
+          points?: number
+          tier?: string
+          total_bookings?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           booking_id: string
@@ -257,6 +365,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      parent_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          location_lat: number | null
+          location_lng: number | null
+          location_radius_km: number | null
+          max_hourly_rate: number | null
+          min_experience_years: number | null
+          preferred_languages: Json | null
+          preferred_specialties: Json | null
+          schedule_preferences: Json | null
+          special_requirements: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          location_radius_km?: number | null
+          max_hourly_rate?: number | null
+          min_experience_years?: number | null
+          preferred_languages?: Json | null
+          preferred_specialties?: Json | null
+          schedule_preferences?: Json | null
+          special_requirements?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          location_radius_km?: number | null
+          max_hourly_rate?: number | null
+          min_experience_years?: number | null
+          preferred_languages?: Json | null
+          preferred_specialties?: Json | null
+          schedule_preferences?: Json | null
+          special_requirements?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       parenting_guides: {
         Row: {
@@ -317,6 +473,78 @@ export type Database = {
           onboarding_completed?: boolean
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      recommendation_logs: {
+        Row: {
+          caregiver_id: string
+          compatibility_score: number
+          created_at: string
+          id: string
+          match_reasons: Json | null
+          parent_id: string
+          was_booked: boolean | null
+          was_clicked: boolean | null
+          was_successful: boolean | null
+        }
+        Insert: {
+          caregiver_id: string
+          compatibility_score?: number
+          created_at?: string
+          id?: string
+          match_reasons?: Json | null
+          parent_id: string
+          was_booked?: boolean | null
+          was_clicked?: boolean | null
+          was_successful?: boolean | null
+        }
+        Update: {
+          caregiver_id?: string
+          compatibility_score?: number
+          created_at?: string
+          id?: string
+          match_reasons?: Json | null
+          parent_id?: string
+          was_booked?: boolean | null
+          was_clicked?: boolean | null
+          was_successful?: boolean | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          converted_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_email: string
+          referred_user_id: string | null
+          referrer_id: string
+          reward_amount: number | null
+          status: string
+        }
+        Insert: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_email: string
+          referred_user_id?: string | null
+          referrer_id: string
+          reward_amount?: number | null
+          status?: string
+        }
+        Update: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_email?: string
+          referred_user_id?: string | null
+          referrer_id?: string
+          reward_amount?: number | null
+          status?: string
         }
         Relationships: []
       }
