@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,9 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Users, DollarSign, TrendingUp, Shield, Sparkles, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Users, DollarSign, TrendingUp, Shield, Sparkles, BarChart3, AlertTriangle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { toast } from "sonner";
+
+const SafetyDashboard = lazy(() => import("@/components/safety/SafetyDashboard"));
 
 const COLORS = ["hsl(252, 80%, 65%)", "hsl(199, 89%, 60%)", "hsl(45, 100%, 60%)", "hsl(340, 60%, 65%)"];
 
@@ -139,12 +141,15 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="analytics" className="space-y-4">
-          <TabsList className="grid grid-cols-2 w-full max-w-md">
+          <TabsList className="grid grid-cols-3 w-full max-w-lg">
             <TabsTrigger value="analytics" className="flex items-center gap-1.5">
               <BarChart3 size={14} /> Analytics
             </TabsTrigger>
             <TabsTrigger value="campaigns" className="flex items-center gap-1.5">
               <Sparkles size={14} /> LiveOps
+            </TabsTrigger>
+            <TabsTrigger value="safety" className="flex items-center gap-1.5">
+              <AlertTriangle size={14} /> Safety
             </TabsTrigger>
           </TabsList>
 
@@ -262,6 +267,12 @@ const AdminDashboard = () => {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="safety">
+            <Suspense fallback={<div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+              <SafetyDashboard />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </main>

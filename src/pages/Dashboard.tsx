@@ -9,7 +9,7 @@ import {
   Music, BookOpen, Puzzle, Heart, Plus, LogOut, Baby, User, Sparkles, Box,
   MessageCircle, Target, Bath, Calendar, ListChecks, ShoppingCart,
   UtensilsCrossed, BookOpen as Journal, Cake, Home, ChevronLeft, Menu,
-  Users, CalendarCheck, Mail, Gift, Shield,
+  Users, CalendarCheck, Mail, Gift, Shield, AlertTriangle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
@@ -42,6 +42,7 @@ const navItems = [
   { id: "bookings", label: "Bookings", icon: CalendarCheck, route: "/bookings" },
   { id: "messages", label: "Messages", icon: Mail, route: "/messages" },
   { id: "growth", label: "Rewards", icon: Gift, route: "/growth" },
+  { id: "safety", label: "Safety", icon: AlertTriangle, route: "/safety" },
   { id: "admin", label: "Admin", icon: Shield, route: "/admin" },
   { id: "milestones", label: "Milestones", icon: Target },
   { id: "potty", label: "Potty Tracker", icon: Bath },
