@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.ai-recommend]
 verify_jwt = false
+
+[functions.safety-monitor]
+verify_jwt = false

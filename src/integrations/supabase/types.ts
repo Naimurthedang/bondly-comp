@@ -152,6 +152,84 @@ export type Database = {
         }
         Relationships: []
       }
+      caregiver_verifications: {
+        Row: {
+          caregiver_id: string
+          created_at: string
+          document_url: string | null
+          expires_at: string | null
+          fraud_flags: Json | null
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+          verification_type: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          caregiver_id: string
+          created_at?: string
+          document_url?: string | null
+          expires_at?: string | null
+          fraud_flags?: Json | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          verification_type: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          caregiver_id?: string
+          created_at?: string
+          document_url?: string | null
+          expires_at?: string | null
+          fraud_flags?: Json | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          verification_type?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
+      emergency_contacts: {
+        Row: {
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          name: string
+          notify_on_incidents: boolean | null
+          parent_id: string
+          phone: string
+          relationship: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          notify_on_incidents?: boolean | null
+          parent_id: string
+          phone: string
+          relationship: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          notify_on_incidents?: boolean | null
+          parent_id?: string
+          phone?: string
+          relationship?: string
+        }
+        Relationships: []
+      }
       engagement_events: {
         Row: {
           created_at: string
@@ -173,6 +251,42 @@ export type Database = {
           event_type?: string
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      geofence_zones: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          latitude: number
+          longitude: number
+          name: string
+          parent_id: string
+          radius_meters: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          latitude: number
+          longitude: number
+          name?: string
+          parent_id: string
+          radius_meters?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          latitude?: number
+          longitude?: number
+          name?: string
+          parent_id?: string
+          radius_meters?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -598,6 +712,124 @@ export type Database = {
           },
         ]
       }
+      safety_incidents: {
+        Row: {
+          admin_escalated_at: string | null
+          booking_id: string | null
+          created_at: string
+          description: string | null
+          emergency_contact_notified_at: string | null
+          id: string
+          incident_type: string
+          location_lat: number | null
+          location_lng: number | null
+          metadata: Json | null
+          parent_notified_at: string | null
+          reported_by: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_escalated_at?: string | null
+          booking_id?: string | null
+          created_at?: string
+          description?: string | null
+          emergency_contact_notified_at?: string | null
+          id?: string
+          incident_type: string
+          location_lat?: number | null
+          location_lng?: number | null
+          metadata?: Json | null
+          parent_notified_at?: string | null
+          reported_by: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_escalated_at?: string | null
+          booking_id?: string | null
+          created_at?: string
+          description?: string | null
+          emergency_contact_notified_at?: string | null
+          id?: string
+          incident_type?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          metadata?: Json | null
+          parent_notified_at?: string | null
+          reported_by?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safety_incidents_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_checkins: {
+        Row: {
+          address: string | null
+          booking_id: string
+          caregiver_id: string
+          check_type: string
+          created_at: string
+          id: string
+          is_within_geofence: boolean | null
+          latitude: number | null
+          longitude: number | null
+          notes: string | null
+        }
+        Insert: {
+          address?: string | null
+          booking_id: string
+          caregiver_id: string
+          check_type: string
+          created_at?: string
+          id?: string
+          is_within_geofence?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          notes?: string | null
+        }
+        Update: {
+          address?: string | null
+          booking_id?: string
+          caregiver_id?: string
+          check_type?: string
+          created_at?: string
+          id?: string
+          is_within_geofence?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_checkins_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       songs: {
         Row: {
           audio_url: string | null
@@ -682,6 +914,69 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wellbeing_reports: {
+        Row: {
+          activities: Json | null
+          ai_generated_summary: string | null
+          booking_id: string
+          care_notes: string | null
+          caregiver_id: string
+          child_id: string | null
+          created_at: string
+          id: string
+          incidents: string | null
+          meals_log: Json | null
+          mood_rating: number | null
+          overall_summary: string | null
+          sleep_log: Json | null
+        }
+        Insert: {
+          activities?: Json | null
+          ai_generated_summary?: string | null
+          booking_id: string
+          care_notes?: string | null
+          caregiver_id: string
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          incidents?: string | null
+          meals_log?: Json | null
+          mood_rating?: number | null
+          overall_summary?: string | null
+          sleep_log?: Json | null
+        }
+        Update: {
+          activities?: Json | null
+          ai_generated_summary?: string | null
+          booking_id?: string
+          care_notes?: string | null
+          caregiver_id?: string
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          incidents?: string | null
+          meals_log?: Json | null
+          mood_rating?: number | null
+          overall_summary?: string | null
+          sleep_log?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wellbeing_reports_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wellbeing_reports_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "babies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
