@@ -23,6 +23,8 @@ const CaregiverOnboarding = lazy(() => import("./pages/CaregiverOnboarding"));
 const Growth = lazy(() => import("./pages/Growth"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Safety = lazy(() => import("./pages/Safety"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const VideoFeed = lazy(() => import("./pages/VideoFeed"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,6 +67,8 @@ const App = () => (
                 <Route path="/growth" element={<ProtectedRoute><Growth /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/safety" element={<ProtectedRoute><Safety /></ProtectedRoute>} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/videos" element={<VideoFeed />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

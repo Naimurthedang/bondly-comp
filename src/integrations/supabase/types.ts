@@ -47,6 +47,65 @@ export type Database = {
         }
         Relationships: []
       }
+      baby_content: {
+        Row: {
+          ai_tags: Json | null
+          baby_id: string
+          content_type: string
+          created_at: string
+          description: string | null
+          duration_seconds: number | null
+          file_url: string | null
+          id: string
+          metadata: Json | null
+          parent_id: string
+          privacy_level: string
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_tags?: Json | null
+          baby_id: string
+          content_type: string
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          parent_id: string
+          privacy_level?: string
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_tags?: Json | null
+          baby_id?: string
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          parent_id?: string
+          privacy_level?: string
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "baby_content_baby_id_fkey"
+            columns: ["baby_id"]
+            isOneToOne: false
+            referencedRelation: "babies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           address_revealed: boolean
@@ -897,6 +956,71 @@ export type Database = {
           },
         ]
       }
+      tos_acceptances: {
+        Row: {
+          accepted_at: string
+          id: string
+          ip_address: string | null
+          tos_version_id: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          tos_version_id: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          tos_version_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tos_acceptances_tos_version_id_fkey"
+            columns: ["tos_version_id"]
+            isOneToOne: false
+            referencedRelation: "tos_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tos_versions: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_current: boolean
+          published_at: string | null
+          title: string
+          version: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_current?: boolean
+          published_at?: string | null
+          title?: string
+          version: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_current?: boolean
+          published_at?: string | null
+          title?: string
+          version?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -911,6 +1035,133 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      video_interactions: {
+        Row: {
+          comment_text: string | null
+          content_id: string
+          created_at: string
+          id: string
+          interaction_type: string
+          user_id: string
+          watch_duration_seconds: number | null
+          watch_percentage: number | null
+        }
+        Insert: {
+          comment_text?: string | null
+          content_id: string
+          created_at?: string
+          id?: string
+          interaction_type: string
+          user_id: string
+          watch_duration_seconds?: number | null
+          watch_percentage?: number | null
+        }
+        Update: {
+          comment_text?: string | null
+          content_id?: string
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          user_id?: string
+          watch_duration_seconds?: number | null
+          watch_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_interactions_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "baby_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_deliveries: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          delivered_at: string | null
+          event_type: string
+          failed_at: string | null
+          id: string
+          max_attempts: number
+          next_retry_at: string | null
+          payload: Json
+          response_body: string | null
+          response_status: number | null
+          webhook_id: string
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          delivered_at?: string | null
+          event_type: string
+          failed_at?: string | null
+          id?: string
+          max_attempts?: number
+          next_retry_at?: string | null
+          payload: Json
+          response_body?: string | null
+          response_status?: number | null
+          webhook_id: string
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          delivered_at?: string | null
+          event_type?: string
+          failed_at?: string | null
+          id?: string
+          max_attempts?: number
+          next_retry_at?: string | null
+          payload?: Json
+          response_body?: string | null
+          response_status?: number | null
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhooks: {
+        Row: {
+          created_at: string
+          events: Json
+          id: string
+          is_active: boolean
+          secret: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          events?: Json
+          id?: string
+          is_active?: boolean
+          secret: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          events?: Json
+          id?: string
+          is_active?: boolean
+          secret?: string
+          updated_at?: string
+          url?: string
           user_id?: string
         }
         Relationships: []
