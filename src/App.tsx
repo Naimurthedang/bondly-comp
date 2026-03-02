@@ -25,6 +25,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Safety = lazy(() => import("./pages/Safety"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const VideoFeed = lazy(() => import("./pages/VideoFeed"));
+const Demo = lazy(() => import("./pages/Demo"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +70,7 @@ const App = () => (
                 <Route path="/safety" element={<ProtectedRoute><Safety /></ProtectedRoute>} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/videos" element={<VideoFeed />} />
+                <Route path="/demo" element={<Demo />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
