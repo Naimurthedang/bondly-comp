@@ -37,37 +37,27 @@ function computeCollaborativeScore(
   allBookings: any[],
   allReviews: any[]
 ): { score: number; reason: string | null } {
-  // Find parents who booked the same caregivers as this parent
   const parentBookedCaregivers = new Set(
     allBookings.filter(b => b.parent_id === parentId).map(b => b.caregiver_id)
   );
-
-  // Find "similar" parents (those who also booked at least one of the same caregivers)
   const similarParents = new Set<string>();
   allBookings.forEach(b => {
     if (b.parent_id !== parentId && parentBookedCaregivers.has(b.caregiver_id)) {
       similarParents.add(b.parent_id);
     }
   });
-
-  // Count how many similar parents booked this caregiver
   const similarParentBookings = allBookings.filter(
     b => similarParents.has(b.parent_id) && b.caregiver_id === caregiverId
   );
-
-  // Get ratings from similar parents for this caregiver
   const similarRatings = allReviews.filter(
     r => similarParents.has(r.reviewer_id) && r.reviewee_id === caregiverId
   );
   const avgSimilarRating = similarRatings.length > 0
     ? similarRatings.reduce((s: number, r: any) => s + r.overall_rating, 0) / similarRatings.length
     : 0;
-
   if (similarParentBookings.length === 0) return { score: 0, reason: null };
-
   const score = Math.min(similarParentBookings.length / 3, 1) * 10 +
     (avgSimilarRating > 0 ? (avgSimilarRating / 5) * 5 : 0);
-
   return {
     score: Math.round(score),
     reason: `Popular with ${similarParentBookings.length} parents like you${avgSimilarRating >= 4 ? ` (avg ${avgSimilarRating.toFixed(1)}★)` : ""}`,
@@ -82,37 +72,20 @@ function predictSuccess(
   cancelledCount: number,
   rehireCount: number
 ): { probability: number; reason: string | null } {
-  let score = 50; // baseline
-
-  // Rating impact (+/- 20)
-  if (stats.count > 0) {
-    score += ((stats.avg - 3) / 2) * 20;
-  }
-
-  // Completion reliability (+/- 15)
+  let score = 50;
+  if (stats.count > 0) score += ((stats.avg - 3) / 2) * 20;
   const totalSessions = completedCount + cancelledCount;
   if (totalSessions > 0) {
     const completionRate = completedCount / totalSessions;
     score += (completionRate - 0.5) * 30;
     if (completionRate < 0.7) {
-      return {
-        probability: Math.max(Math.round(score), 10),
-        reason: `Completion rate: ${Math.round(completionRate * 100)}%`,
-      };
+      return { probability: Math.max(Math.round(score), 10), reason: `Completion rate: ${Math.round(completionRate * 100)}%` };
     }
   }
-
-  // Experience boost (+10 max)
   score += Math.min((caregiver.years_experience || 0) / 10, 1) * 10;
-
-  // Rehire signal (+5)
   if (rehireCount >= 2) score += 5;
-
   const probability = Math.min(Math.max(Math.round(score), 10), 99);
-  return {
-    probability,
-    reason: probability >= 80 ? "High predicted success rate" : null,
-  };
+  return { probability, reason: probability >= 80 ? "High predicted success rate" : null };
 }
 
 function computeWeightedScore(
@@ -126,54 +99,28 @@ function computeWeightedScore(
 ): { score: number; reasons: string[] } {
   let score = 0;
   const reasons: string[] = [];
-
-  // Rating weight (25%)
   if (avgRating > 0) {
     score += (avgRating / 5) * 25;
     if (avgRating >= 4.5) reasons.push(`Exceptional ${avgRating.toFixed(1)}★ rating from ${reviewCount} reviews`);
     else if (avgRating >= 4.0) reasons.push(`Strong ${avgRating.toFixed(1)}★ rating`);
   }
-
-  // Experience (15%)
   const exp = caregiver.years_experience || 0;
   score += Math.min(exp / 10, 1) * 15;
   if (exp >= 5) reasons.push(`${exp} years of childcare experience`);
-
-  // Profile completeness (5%)
   score += (caregiver.profile_completeness / 100) * 5;
-
-  // Rehire frequency (10%)
   score += Math.min(rehireCount / 5, 1) * 10;
   if (rehireCount >= 3) reasons.push("Frequently rehired by parents");
-
-  // Collaborative filtering (15%)
   score += collaborativeScore;
-
-  // Predictive success (10%)
   score += (successProbability / 100) * 10;
-
-  // Budget match (10%)
   if (preferences) {
     const maxRate = preferences.max_hourly_rate as number | undefined;
-    if (maxRate && caregiver.hourly_rate <= maxRate) {
-      score += 10;
-      reasons.push("Within your budget");
-    } else if (!maxRate) {
-      score += 7;
-    }
-
-    // Specialty match (10%)
+    if (maxRate && caregiver.hourly_rate <= maxRate) { score += 10; reasons.push("Within your budget"); }
+    else if (!maxRate) { score += 7; }
     const prefSpecialties = (preferences.preferred_specialties as string[]) || [];
     const caregiverSpecs = caregiver.specialties || [];
     const matchCount = prefSpecialties.filter(s => caregiverSpecs.includes(s)).length;
-    if (matchCount > 0) {
-      score += (matchCount / Math.max(prefSpecialties.length, 1)) * 10;
-      reasons.push(`Matches ${matchCount} of your preferred specialties`);
-    }
-  } else {
-    score += 7;
-  }
-
+    if (matchCount > 0) { score += (matchCount / Math.max(prefSpecialties.length, 1)) * 10; reasons.push(`Matches ${matchCount} of your preferred specialties`); }
+  } else { score += 7; }
   return { score: Math.round(score), reasons };
 }
 
@@ -198,7 +145,17 @@ serve(async (req) => {
       });
     }
 
-    const { limit = 10, specialty, max_rate } = await req.json().catch(() => ({}));
+    // ---- Input Validation ----
+    const rawBody = await req.json().catch(() => ({}));
+    const limit = typeof rawBody.limit === "number" && rawBody.limit > 0 && rawBody.limit <= 50
+      ? Math.floor(rawBody.limit)
+      : 10;
+    const specialty = typeof rawBody.specialty === "string" && rawBody.specialty.length <= 100
+      ? rawBody.specialty.trim() || undefined
+      : undefined;
+    const max_rate = typeof rawBody.max_rate === "number" && rawBody.max_rate > 0 && rawBody.max_rate <= 10000
+      ? rawBody.max_rate
+      : undefined;
 
     // Parallel data fetches
     const [prefsRes, cgRes, reviewsRes, allBookingsRes] = await Promise.all([
@@ -206,8 +163,7 @@ serve(async (req) => {
       (() => {
         let q = adminClient.from("caregiver_profiles").select("*").eq("verification_status", "verified");
         if (specialty) q = q.contains("specialties", [specialty]);
-        const effectiveRate = max_rate || undefined;
-        if (effectiveRate) q = q.lte("hourly_rate", effectiveRate);
+        if (max_rate) q = q.lte("hourly_rate", max_rate);
         return q;
       })(),
       adminClient.from("reviews").select("reviewee_id, reviewer_id, overall_rating, booking_id"),
@@ -223,17 +179,15 @@ serve(async (req) => {
       });
     }
 
-    // Apply max rate from prefs if not in request
     let filteredCaregivers = caregivers;
     if (!max_rate && prefs?.max_hourly_rate) {
       filteredCaregivers = caregivers.filter((c: any) => c.hourly_rate <= prefs.max_hourly_rate);
-      if (filteredCaregivers.length === 0) filteredCaregivers = caregivers; // fallback
+      if (filteredCaregivers.length === 0) filteredCaregivers = caregivers;
     }
 
     const reviews = reviewsRes.data || [];
     const allBookings = allBookingsRes.data || [];
 
-    // Compute stats
     const reviewStats: Record<string, { avg: number; count: number }> = {};
     for (const r of reviews) {
       if (!reviewStats[r.reviewee_id]) reviewStats[r.reviewee_id] = { avg: 0, count: 0 };
@@ -250,48 +204,29 @@ serve(async (req) => {
     for (const b of allBookings) {
       if (b.status === "completed") {
         completedByCaregiver[b.caregiver_id] = (completedByCaregiver[b.caregiver_id] || 0) + 1;
-        if (b.parent_id === user.id) {
-          rehireCounts[b.caregiver_id] = (rehireCounts[b.caregiver_id] || 0) + 1;
-        }
+        if (b.parent_id === user.id) rehireCounts[b.caregiver_id] = (rehireCounts[b.caregiver_id] || 0) + 1;
       } else if (b.status === "cancelled") {
         cancelledByCaregiver[b.caregiver_id] = (cancelledByCaregiver[b.caregiver_id] || 0) + 1;
       }
     }
 
-    // Score each caregiver
     const scored: ScoredCaregiver[] = filteredCaregivers.map((cg: any) => {
       const stats = reviewStats[cg.user_id] || { avg: 0, count: 0 };
       const rehires = rehireCounts[cg.user_id] || 0;
       const completed = completedByCaregiver[cg.user_id] || 0;
       const cancelled = cancelledByCaregiver[cg.user_id] || 0;
-
       const collab = computeCollaborativeScore(cg.user_id, user.id, allBookings, reviews);
       const prediction = predictSuccess(cg as CaregiverProfile, stats, completed, cancelled, rehires);
-
-      const { score, reasons } = computeWeightedScore(
-        cg as CaregiverProfile, prefs, stats.avg, stats.count,
-        rehires, collab.score, prediction.probability
-      );
-
+      const { score, reasons } = computeWeightedScore(cg as CaregiverProfile, prefs, stats.avg, stats.count, rehires, collab.score, prediction.probability);
       if (collab.reason) reasons.push(collab.reason);
       if (prediction.reason) reasons.push(prediction.reason);
-
-      return {
-        ...(cg as CaregiverProfile),
-        compatibility_score: score,
-        match_reasons: reasons,
-        is_top_match: false,
-        average_rating: stats.avg,
-        review_count: stats.count,
-        success_probability: prediction.probability,
-      };
+      return { ...(cg as CaregiverProfile), compatibility_score: score, match_reasons: reasons, is_top_match: false, average_rating: stats.avg, review_count: stats.count, success_probability: prediction.probability };
     });
 
     scored.sort((a, b) => b.compatibility_score - a.compatibility_score);
     if (scored.length > 0) scored[0].is_top_match = true;
     const topResults = scored.slice(0, limit);
 
-    // AI insight
     let aiInsight = "";
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (LOVABLE_API_KEY && topResults.length > 0) {
@@ -299,7 +234,6 @@ serve(async (req) => {
         const topNames = topResults.slice(0, 3).map(c =>
           `${c.full_name} (${c.compatibility_score}% match, $${c.hourly_rate}/hr, ${c.years_experience || 0}y exp, success: ${c.success_probability}%, specialties: ${(c.specialties || []).join(", ")})`
         ).join("\n");
-
         const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
@@ -311,7 +245,6 @@ serve(async (req) => {
             ],
           }),
         });
-
         if (aiResp.ok) {
           const aiData = await aiResp.json();
           aiInsight = aiData.choices?.[0]?.message?.content || "";
@@ -321,13 +254,10 @@ serve(async (req) => {
       }
     }
 
-    // Log recommendations
     for (const r of topResults.slice(0, 5)) {
       await userClient.from("recommendation_logs").insert({
-        parent_id: user.id,
-        caregiver_id: r.user_id,
-        compatibility_score: r.compatibility_score,
-        match_reasons: r.match_reasons,
+        parent_id: user.id, caregiver_id: r.user_id,
+        compatibility_score: r.compatibility_score, match_reasons: r.match_reasons,
       }).catch(() => {});
     }
 
@@ -336,7 +266,7 @@ serve(async (req) => {
     });
   } catch (e) {
     console.error("recommend error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "An error occurred processing your request." }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
