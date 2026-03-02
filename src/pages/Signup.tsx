@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
@@ -14,12 +16,23 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [tosAccepted, setTosAccepted] = useState(false);
+  const [tosVersionId, setTosVersionId] = useState<string | null>(null);
   const { signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    supabase.from("tos_versions").select("id").eq("is_current", true).single()
+      .then(({ data }) => { if (data) setTosVersionId(data.id); });
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tosAccepted) {
+      toast({ title: "Required", description: "Please accept the Terms of Service", variant: "destructive" });
+      return;
+    }
     if (password.length < 6) {
       toast({ title: "Error", description: "Password must be at least 6 characters", variant: "destructive" });
       return;
@@ -88,7 +101,20 @@ const Signup = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full rounded-full" disabled={loading}>
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  id="tos"
+                  checked={tosAccepted}
+                  onCheckedChange={(checked) => setTosAccepted(checked === true)}
+                  className="mt-0.5"
+                />
+                <Label htmlFor="tos" className="text-xs text-muted-foreground leading-tight cursor-pointer">
+                  I agree to the{" "}
+                  <Link to="/terms" target="_blank" className="text-primary hover:underline">Terms of Service</Link>
+                </Label>
+              </div>
+
+              <Button type="submit" className="w-full rounded-full" disabled={loading || !tosAccepted}>
                 {loading && <Loader2 size={16} className="animate-spin" />}
                 Create Account
               </Button>
