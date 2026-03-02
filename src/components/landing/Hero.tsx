@@ -60,7 +60,7 @@ export const Hero = () => (
             </Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base">
-            <a href="#demo">See Demo</a>
+            <Link to="/demo">See Demo</Link>
           </Button>
         </motion.div>
 

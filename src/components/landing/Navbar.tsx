@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const navLinks = [
+const navLinks: { label: string; href: string; isRoute?: boolean }[] = [
   { label: "Features", href: "#features" },
-  { label: "Demo", href: "#demo" },
+  { label: "Demo", href: "/demo", isRoute: true },
   { label: "Pricing", href: "#pricing" },
 ];
 
@@ -22,15 +22,25 @@ export const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.isRoute ? (
+              <Link
+                key={link.label}
+                to={link.href}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.label}
+                href={link.href}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </a>
+            )
+          )}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -56,12 +66,19 @@ export const Navbar = () => {
             className="md:hidden glass border-t border-border/50 overflow-hidden"
           >
             <div className="flex flex-col gap-4 p-4">
-              {navLinks.map((link) => (
-                <a key={link.label} href={link.href} className="text-sm font-medium text-muted-foreground"
-                  onClick={() => setMobileOpen(false)}>
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                link.isRoute ? (
+                  <Link key={link.label} to={link.href} className="text-sm font-medium text-muted-foreground"
+                    onClick={() => setMobileOpen(false)}>
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a key={link.label} href={link.href} className="text-sm font-medium text-muted-foreground"
+                    onClick={() => setMobileOpen(false)}>
+                    {link.label}
+                  </a>
+                )
+              )}
               <div className="flex gap-2 pt-2">
                 <Button variant="ghost" asChild className="flex-1">
                   <Link to="/login">Log in</Link>
