@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ScrollToTop } from "@/components/routing/ScrollToTop";
+import { usePresence } from "@/hooks/usePresence";
 import Index from "./pages/Index";
 
 const Login = lazy(() => import("./pages/Login"));
@@ -44,6 +46,39 @@ const PageLoader = () => (
   </div>
 );
 
+/** Inner component that uses hooks requiring AuthProvider */
+const AppRoutes = () => {
+  usePresence();
+
+  return (
+    <>
+      <ScrollToTop />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+          <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+          <Route path="/caregiver/onboarding" element={<ProtectedRoute><CaregiverOnboarding /></ProtectedRoute>} />
+          <Route path="/invest" element={<Invest />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/growth" element={<ProtectedRoute><Growth /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/safety" element={<ProtectedRoute><Safety /></ProtectedRoute>} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/videos" element={<VideoFeed />} />
+          <Route path="/demo" element={<Demo />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -52,28 +87,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
-                <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-                <Route path="/caregiver/onboarding" element={<ProtectedRoute><CaregiverOnboarding /></ProtectedRoute>} />
-                <Route path="/invest" element={<Invest />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/growth" element={<ProtectedRoute><Growth /></ProtectedRoute>} />
-                <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                <Route path="/safety" element={<ProtectedRoute><Safety /></ProtectedRoute>} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/videos" element={<VideoFeed />} />
-                <Route path="/demo" element={<Demo />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+            <AppRoutes />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
