@@ -16,6 +16,7 @@ import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import IframeModule from "@/components/dashboard/IframeModule";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { NotificationToggle } from "@/components/notifications/NotificationBanner";
 
 // Lazy load feature modules
 const ChatBot = lazy(() => import("@/components/chatbot/ChatBot"));
@@ -236,9 +237,10 @@ const Dashboard = () => {
           <Button variant="ghost" size="icon" className="md:hidden mr-2" onClick={() => setSidebarOpen(!sidebarOpen)}>
             <Menu size={18} />
           </Button>
-          <h1 className="font-display text-lg font-bold text-foreground">
+          <h1 className="font-display text-lg font-bold text-foreground flex-1">
             {navItems.find((n) => n.id === activeTab)?.label || "Dashboard"}
           </h1>
+          <NotificationToggle />
         </header>
 
         <div className="p-6 max-w-5xl mx-auto">
