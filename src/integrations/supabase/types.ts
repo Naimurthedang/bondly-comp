@@ -623,6 +623,8 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_online: boolean | null
+          last_seen_at: string | null
           onboarding_completed: boolean
           updated_at: string
           user_id: string
@@ -633,6 +635,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_online?: boolean | null
+          last_seen_at?: string | null
           onboarding_completed?: boolean
           updated_at?: string
           user_id: string
@@ -643,9 +647,38 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_online?: boolean | null
+          last_seen_at?: string | null
           onboarding_completed?: boolean
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          identifier: string
+          request_count: number | null
+          window_start: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          identifier: string
+          request_count?: number | null
+          window_start?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          identifier?: string
+          request_count?: number | null
+          window_start?: string | null
         }
         Relationships: []
       }
@@ -842,6 +875,36 @@ export type Database = {
           },
         ]
       }
+      security_audit_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          resource: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resource?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resource?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       session_checkins: {
         Row: {
           address: string | null
@@ -1020,6 +1083,38 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      typing_status: {
+        Row: {
+          booking_id: string
+          id: string
+          is_typing: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          booking_id: string
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          booking_id?: string
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "typing_status_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
