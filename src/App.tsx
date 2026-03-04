@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/hooks/useTheme";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ScrollToTop } from "@/components/routing/ScrollToTop";
 import { usePresence } from "@/hooks/usePresence";
+import { NotificationBanner } from "@/components/notifications/NotificationBanner";
 import Index from "./pages/Index";
 
 const Login = lazy(() => import("./pages/Login"));
@@ -53,6 +54,7 @@ const AppRoutes = () => {
   return (
     <>
       <ScrollToTop />
+      <NotificationBanner />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Index />} />
